@@ -15,5 +15,5 @@
 base:
   '*':
     - common
-    - saio
+    - swift
     - plex
