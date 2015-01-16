@@ -20,6 +20,7 @@ swift:
     - home: /home/swift
     - createhome: True
 
+
 # Install dependencies
 {% for a in ['gcc', 'memcached', 'rsync', 'sqlite3', 'xfsprogs',
              'libffi-dev', 'python-setuptools',
@@ -32,7 +33,12 @@ swift:
   pkg.installed
 {% endfor %}
 
+
 # Use partition for storage
+/srv:
+  file.directory:
+    - makedirs: True
+
 sfdisk.layout:
   file.managed:
     - name: /opt/swift-home/sfdisk.layout
@@ -40,11 +46,31 @@ sfdisk.layout:
     - user: swift
     - group: swift
 
+/var/run/swift:
+  file.directory
+    - makedirs: True
+    - user: swift
+    - group: swift
+
 # TODO: This is vagrant specific, prob a better way to handle it.
 {% for d in ['sdb', 'sdc', 'sdd', 'sde'] %}
 sudo sfdisk /dev/{{ d }} < /opt/swift-home/sfdisk.layout:
   cmd.run
+
+sudo mkfs.xfs /dev/{{ d }}1:
+  cmd.run
+
+/srv/{{ d }}1:
+  file.directory:
+    - makedirs: True
+    - user: swift
+    - group: swift
 {% endfor %}
+
+/etc/fstab:
+  file.append:
+    - text:
+      - "/dev/{{ d }}1 /srv/{{ d }}1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0"
 
 # Get the code
 /opt/swift-home/middleware:
@@ -81,11 +107,14 @@ https://github.com/hurricanerix/saio-fuse.git:
     - rev: master
     - target: /opt/swift-home/saio-fuse
 
+
 # Setup up rsync
 ## TODO: do this step
 
+
 # Setup memcahced
 ## TODO: do this step
+
 
 # Configure Swift
 {% for f in ['account-server.conf', 'container-reconciler.conf',
@@ -105,6 +134,7 @@ https://github.com/hurricanerix/saio-fuse.git:
     - makedirs: True
     - user: root
     - group: swift
+
 
 # Set up scripts for running Swift
 {% for f in ['remakerings','startmain','startrest'] %}
