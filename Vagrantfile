@@ -17,6 +17,11 @@
 
 VAGRANTFILE_API_VERSION = "2"
 
+disk_sdb1 = 'tmp/saio-home-sdb1.vdi'
+disk_sdc1 = 'tmp/saio-home-sdc1.vdi'
+disk_sdd1 = 'tmp/saio-home-sdd1.vdi'
+disk_sde1 = 'tmp/saio-home-sde1.vdi'
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "precise64"
   config.vm.box_url = "http://files.vagrantup.com/precise64.box"
@@ -28,6 +33,28 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider "virtualbox" do |vb|
     vb.name = "swift-home"
+  end
+
+  config.vm.provider "virtualbox" do | v |
+    v.memory = 1024
+    v.cpus = 2
+
+    unless File.exist?(disk_sdb1)
+      v.customize ['createhd', '--filename', disk_sdb1, '--size', 5000 * 1024]
+    end
+    unless File.exist?(disk_sdc1)
+      v.customize ['createhd', '--filename', disk_sdc1, '--size', 5000 * 1024]
+    end
+    unless File.exist?(disk_sdd1)
+      v.customize ['createhd', '--filename', disk_sdd1, '--size', 5000 * 1024]
+    end
+    unless File.exist?(disk_sde1)
+      v.customize ['createhd', '--filename', disk_sde1, '--size', 5000 * 1024]
+    end
+    v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk_sdb1]
+    v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk_sdc1]
+    v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', disk_sdd1]
+    v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 4, '--device', 0, '--type', 'hdd', '--medium', disk_sde1]
   end
 
   config.vm.provision :salt do |salt|

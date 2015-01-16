@@ -12,8 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-base:
-  '*':
-    - common
-    - saio
-    - plex
+plex:
+  user.present:
+    - fullname: Plex User
+    - shell: /usr/bin/zsh
+    - home: /home/plex
+    - createhome: True
+
+/home/plex/saio:
+  file.directory:
+    - user: plex
+    - group: plex
+    - makedirs: True
