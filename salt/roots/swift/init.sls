@@ -24,3 +24,15 @@ zshrc:
   file.managed:
     - name: /opt/swift-home/home/.zshrc
     - source: salt://swift/home/zshrc
+
+# Install dependencies
+{% for pkg in ['gcc', 'memcached', 'rsync', 'sqlite3', 'xfsprogs',
+             'libffi-dev', 'python-setuptools',
+             'python-coverage', 'python-dev', 'python-nose',
+             'python-simplejson', 'python-xattr', 'python-eventlet',
+             'python-greenlet', 'python-pastedeploy',
+             'python-netifaces', 'python-pip', 'python-dnspython',
+             'python-mock'] %}
+{{ pkg }}:
+  pkg.installed
+{% endfor %}
