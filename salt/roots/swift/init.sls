@@ -23,6 +23,11 @@ swift:
     - groups:
         - sudo
 
+/opt/swift-home/swift/bin:
+  file.directory:
+    - makedirs: True
+    - user: swift
+    - group: swift
 
 swift-zshrc:
   file.managed:
@@ -66,3 +71,16 @@ sfdisk.layout:
       - LABEL=SWIFT_DISK2 /srv/disk2 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0
       - LABEL=SWIFT_DISK3 /srv/disk3 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0
       - LABEL=SWIFT_DISK4 /srv/disk4 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0
+
+swift_setup_disks:
+  file.managed:
+    - name: /opt/swift-home/swift/bin/setup_disks
+    - source: salt://swift/bin/setup_disks
+    - user: swift
+    - group: swift
+    - mode: 744
+
+{% for device in ['/dev/sdb', '/dev/sdc', '/dev/sdd', '/dev/sde'] %}
+/opt/swift-home/swift/bin/setup_disks {{ device }}:
+  cmd.run
+{% endfor %}
