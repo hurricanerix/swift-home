@@ -51,3 +51,18 @@ sfdisk.layout:
 {% endfor %}
 
 # Use a partition for storage
+{% for mp in ['disk1', 'disk2', 'disk3', 'disk4'] %}
+/srv/{{ mp }}:
+  file.directory:
+    - makedirs: True
+    - user: swift
+    - group: swift
+{% endfor %}
+
+/etc/fstab:
+  file.append:
+    - text:
+      - LABEL=SWIFT_DISK1 /srv/disk1 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0
+      - LABEL=SWIFT_DISK2 /srv/disk2 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0
+      - LABEL=SWIFT_DISK3 /srv/disk3 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0
+      - LABEL=SWIFT_DISK4 /srv/disk4 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0
