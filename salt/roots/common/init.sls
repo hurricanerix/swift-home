@@ -21,13 +21,12 @@
   file.directory:
     - makedirs: True
 
-{% for f in ['firewall'] %}
-{{ f }}:
+# Setup Firewall
+firewall:
   file.managed:
-    - name: /opt/swift-home/bin/{{ f }}
-    - source: salt://common/bin/{{ f }}
+    - name: /opt/swift-home/bin/firewall
+    - source: salt://common/bin/firewall
     - mode: 744
-{% endfor %}
 
 /etc/network/interfaces:
   file.managed:
@@ -36,3 +35,8 @@
 
 /etc/init.d/networking restart:
   cmd.run
+
+# Setup oh-my-zsh
+https://github.com/robbyrussell/oh-my-zsh.git:
+  git.latest:
+    - target: /opt/swift-home/oh-my-zsh
