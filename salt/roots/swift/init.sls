@@ -17,13 +17,22 @@ swift:
   user.present:
     - fullname: Swift User
     - shell: /usr/bin/zsh
-    - home: /opt/swift-home/home
+    - home: /opt/swift-home/swift
     - createhome: True
 
 zshrc:
   file.managed:
-    - name: /opt/swift-home/home/.zshrc
-    - source: salt://swift/home/zshrc
+    - name: /opt/swift-home/swift/.zshrc
+    - source: salt://swift/zshrc
+    - user: swift
+    - group: swift
+
+sfdisk.layout:
+  file.managed:
+    - name: /opt/swift-home/swift/sfdisk.layout
+    - source: salt://swift/sfdisk.layout
+    - user: swift
+    - group: swift
 
 # Install dependencies
 {% for pkg in ['gcc', 'memcached', 'rsync', 'sqlite3', 'xfsprogs',
@@ -36,3 +45,26 @@ zshrc:
 {{ pkg }}:
   pkg.installed
 {% endfor %}
+
+# Use a partition for storage
+{% for device in ['sdb', 'sdc', 'sdd', 'sde'] %}
+sudo sfdisk /dev/{{ device }} < /opt/swift-home/swift/sfdisk.layout:
+  cmd.run
+
+sudo mkfs.xfs -f /dev/{{ device }}1:
+  cmd.run
+
+/srv/{{ device }}1:
+  file.directory:
+    - makedirs: True
+    - user: swift
+    - group: swift
+{% endfor %}
+
+/etc/fstab:
+  file.append:
+    - text:
+      - "/dev/sdb1 /srv/sdb1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0"
+      - "/dev/sdc1 /srv/sdc1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0"
+      - "/dev/sdd1 /srv/sdd1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0"
+      - "/dev/sde1 /srv/sde1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0"
