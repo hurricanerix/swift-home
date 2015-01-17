@@ -15,3 +15,4 @@
 # Standard masterless salt minion set-up
 master: localhost
 file_client: local
+output_mode: mixed
