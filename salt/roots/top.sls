@@ -15,5 +15,3 @@
 base:
   '*':
     - common
-    - swift
-    - plex

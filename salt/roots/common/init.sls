@@ -12,13 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{% for a in ['curl','git'] %}
+{% for a in ['curl','git', 'zsh'] %}
 {{ a }}:
   pkg.installed
 {% endfor %}
-
-zsh:
-    pkg.installed
 
 /opt/swift-home/bin:
   file.directory:
@@ -37,4 +34,5 @@ zsh:
     - name: /etc/network/interfaces
     - source: salt://common/etc/network-interfaces
 
-# TODO: Firewal does not start without a reboot
+/etc/init.d/networking restart:
+  cmd.run
