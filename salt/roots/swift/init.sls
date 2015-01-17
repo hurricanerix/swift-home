@@ -12,7 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-base:
-  '*':
-    - common
-    - swift
+# Create User
+swift:
+  user.present:
+    - fullname: Swift User
+    - shell: /usr/bin/zsh
+    - home: /opt/swift-home/home
+    - createhome: True
+
+zshrc:
+  file.managed:
+    - name: /opt/swift-home/home/.zshrc
+    - source: salt://swift/home/zshrc
