@@ -17,13 +17,13 @@ import argparse
 import subprocess
 
 
-def run_cmd(cmd, cmd_input=None):
+def run_cmd(cmd, cmd_input=None, ignore_error=False):
     process=subprocess.Popen(cmd,
                              stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
     out, err = process.communicate(input=cmd_input)
-    if err:
+    if err and not ignore_error:
         raise Exception(err)
     return out
 
@@ -53,10 +53,8 @@ def main():
 
     # Check device for existing partitions
     cmd = ['sfdisk',  '-l', device]
-    print ' '.join(cmd)
-    out = run_cmd(cmd)
-    print out
-    partition_exists = False
+    out = run_cmd(cmd, ignore_error=True)
+    partition_exists = '{}1'.format(device) in out
 
     if partition_exists and not args.force:
         raise Exception('Partition exists, to continue please use --force')
@@ -65,29 +63,21 @@ def main():
         print 'Partition exists, skipping partitioning step'
     else:
         cmd = ['fdisk', device]
-        cmd_input = 'n\np\n1\n\nw\n'
-        print ' '.join(cmd)
+        cmd_input = 'n\np\n1\n\n\nw\n'
         out = run_cmd(cmd, cmd_input=cmd_input)
-        print out
 
     mounted = is_mounted(device)
     if mounted:
         cmd = ['umount', '{}1'.format(device)]
-        print ' '.join(cmd)
         out = run_cmd(cmd)
-        print out
 
     cmd = ['mkfs.xfs', '-f', '{}1'.format(device)]
-    print ' '.join(cmd)
     out = run_cmd(cmd)
-    print out
 
     # TODO: Label not occouring
     cmd = ['xfs_admin', '-L', 'SWIFT_DISK{}'.format(drive_num),
            '{}1'.format(device)]
-    print ' '.join(cmd)
     out = run_cmd(cmd)
-    print out
 
     print 'Device {} setup complete:'.format(device)
     print '\tAssigned drive number: {}'.format(drive_num)
