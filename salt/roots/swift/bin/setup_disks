@@ -28,6 +28,13 @@ def run_cmd(cmd, cmd_input=None):
     return out
 
 
+def is_mounted(device):
+    output = run_cmd(['grep', device, '/proc/mounts'])
+    if output:
+        return True
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser(description='Disk Partition/Format-er')
     parser.add_argument('--number', type=int, default=0)
@@ -45,11 +52,11 @@ def main():
             raise Exception('Could not determine drive number from device.')
 
     # Check device for existing partitions
-    cmd = ['fdisk',  '-l', device]
+    cmd = ['sfdisk',  '-l', device]
     print ' '.join(cmd)
     out = run_cmd(cmd)
     print out
-    partition_exists = True
+    partition_exists = False
 
     if partition_exists and not args.force:
         raise Exception('Partition exists, to continue please use --force')
@@ -63,17 +70,20 @@ def main():
         out = run_cmd(cmd, cmd_input=cmd_input)
         print out
 
-    cmd = ['umount', '{}1'.format(device)]
-    print ' '.join(cmd)
-    out = run_cmd(cmd)
-    print out
+    mounted = is_mounted(device)
+    if mounted:
+        cmd = ['umount', '{}1'.format(device)]
+        print ' '.join(cmd)
+        out = run_cmd(cmd)
+        print out
 
     cmd = ['mkfs.xfs', '-f', '{}1'.format(device)]
     print ' '.join(cmd)
     out = run_cmd(cmd)
     print out
 
-    cmd = ['xfs_admin', '-L', '"SWIFT_DISK{}"'.format(drive_num),
+    # TODO: Label not occouring
+    cmd = ['xfs_admin', '-L', 'SWIFT_DISK{}'.format(drive_num),
            '{}1'.format(device)]
     print ' '.join(cmd)
     out = run_cmd(cmd)
