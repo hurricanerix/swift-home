@@ -14,40 +14,73 @@
 # limitations under the License.
 
 import argparse
+import subprocess
+
+
+def run_cmd(cmd, cmd_input=None):
+    process=subprocess.Popen(cmd,
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+    out, err = process.communicate(input=cmd_input)
+    if err:
+        raise Exception(err)
+    return out
 
 
 def main():
     parser = argparse.ArgumentParser(description='Disk Partition/Format-er')
-    parser.add_argument('devices', type=str, nargs='+')
+    parser.add_argument('--number', type=int, default=0)
+    parser.add_argument('--force', '-f', action='store_true', default=False)
+    parser.add_argument('device', type=str)
 
     args = parser.parse_args()
+    device = args.device
+    drive_num = args.number
 
-    print args
-    for device in args.devices:
-        print 'TODO 1. Check for {0}1, {0}2, ...'.format(device)
-        print 'TODO 1a. partitions found, check for -f option'
-        print 'TODO 1a1. -f not found, error out'
-        print 'TODO 1a2. -f fount, remove existing partitions
-        print 'TODO 1b. no existing partitions  found, continue'
+    if drive_num == 0:
+        drive_index = {'b': 1, 'c': 2, 'd': 3, 'e': 4}
+        drive_num = drive_index.get(args.device[-1:])
+        if not drive_num:
+            raise Exception('Could not determine drive number from device.')
 
-        print 'TODO 2. Partition disk {}'.format(device)
+    # Check device for existing partitions
+    cmd = ['fdisk',  '-l', device]
+    print ' '.join(cmd)
+    out = run_cmd(cmd)
+    print out
+    partition_exists = True
 
-        print 'TODO 3. Format disk {}1 as xfs'.format(device)
-        print 'TODO 4. Label disk'
-        # http://xmodulo.com/how-to-run-fdisk-in-non-interactive-batch-mode.html
-        # sudo fdisk -s /dev/sdb
-        # 52428800
-        # $ sudo fdisk
-        # n
-        # p
-        # 1
-        #
-        #
-        # w
-        # $ sudo mkfs.xfs /dev/sdb1
-        # $ sudo xfs_admin -L "SWIFT_DISK1" /dev/sdb1
+    if partition_exists and not args.force:
+        raise Exception('Partition exists, to continue please use --force')
 
+    if partition_exists:
+        print 'Partition exists, skipping partitioning step'
+    else:
+        cmd = ['fdisk', device]
+        cmd_input = 'n\np\n1\n\nw\n'
+        print ' '.join(cmd)
+        out = run_cmd(cmd, cmd_input=cmd_input)
+        print out
 
+    cmd = ['umount', '{}1'.format(device)]
+    print ' '.join(cmd)
+    out = run_cmd(cmd)
+    print out
+
+    cmd = ['mkfs.xfs', '-f', '{}1'.format(device)]
+    print ' '.join(cmd)
+    out = run_cmd(cmd)
+    print out
+
+    cmd = ['xfs_admin', '-L', '"SWIFT_DISK{}"'.format(drive_num),
+           '{}1'.format(device)]
+    print ' '.join(cmd)
+    out = run_cmd(cmd)
+    print out
+
+    print 'Device {} setup complete:'.format(device)
+    print '\tAssigned drive number: {}'.format(drive_num)
 
 
 if __name__ == '__main__':
