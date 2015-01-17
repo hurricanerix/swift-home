@@ -19,6 +19,10 @@ swift:
     - shell: /usr/bin/zsh
     - home: /opt/swift-home/swift
     - createhome: True
+    - password: $1$8Oyu9skc$DLcrnfjHKeBBtx5ZOtPdu0
+    - groups:
+        - sudo
+
 
 swift-zshrc:
   file.managed:
@@ -47,24 +51,3 @@ sfdisk.layout:
 {% endfor %}
 
 # Use a partition for storage
-{% for device in ['sdb', 'sdc', 'sdd', 'sde'] %}
-sudo sfdisk /dev/{{ device }} < /opt/swift-home/swift/sfdisk.layout:
-  cmd.run
-
-sudo mkfs.xfs -f /dev/{{ device }}1:
-  cmd.run
-
-/srv/{{ device }}1:
-  file.directory:
-    - makedirs: True
-    - user: swift
-    - group: swift
-{% endfor %}
-
-/etc/fstab:
-  file.append:
-    - text:
-      - "/dev/sdb1 /srv/sdb1 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0"
-      - "/dev/sdc1 /srv/sdc1 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0"
-      - "/dev/sdd1 /srv/sdd1 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0"
-      - "/dev/sde1 /srv/sde1 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0"
