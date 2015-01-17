@@ -32,7 +32,22 @@ def main():
 
         print 'TODO 2. Partition disk {}'.format(device)
 
-        print 'TODO 3. Format dsik {}1 as xfs'.format(device)
+        print 'TODO 3. Format disk {}1 as xfs'.format(device)
+        print 'TODO 4. Label disk'
+        # http://xmodulo.com/how-to-run-fdisk-in-non-interactive-batch-mode.html
+        # sudo fdisk -s /dev/sdb
+        # 52428800
+        # $ sudo fdisk
+        # n
+        # p
+        # 1
+        #
+        #
+        # w
+        # $ sudo mkfs.xfs /dev/sdb1
+        # $ sudo xfs_admin -L "SWIFT_DISK1" /dev/sdb1
+
+
 
 
 if __name__ == '__main__':
