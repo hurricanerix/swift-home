@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ZSH=/opt/swift-home/oh-my-zsh
+vagrant-zshrc:
+  file.managed:
+    - name: /home/vagrant/.zshrc
+    - source: salt://vagrant/zshrc
+    - user: vagrant
+    - group: vagrant
 
-ZSH_THEME="ys"
-plugins=()
-source $ZSH/oh-my-zsh.sh
-
-# Customize to your needs...
-export PATH=$PATH:/opt/swift-home/bin
+chsh -s /usr/bin/zsh vagrant:
+  cmd.run

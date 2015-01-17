@@ -20,7 +20,7 @@ swift:
     - home: /opt/swift-home/swift
     - createhome: True
 
-zshrc:
+swift-zshrc:
   file.managed:
     - name: /opt/swift-home/swift/.zshrc
     - source: salt://swift/zshrc
@@ -64,7 +64,7 @@ sudo mkfs.xfs -f /dev/{{ device }}1:
 /etc/fstab:
   file.append:
     - text:
-      - "/dev/sdb1 /srv/sdb1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0"
-      - "/dev/sdc1 /srv/sdc1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0"
-      - "/dev/sdd1 /srv/sdd1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0"
-      - "/dev/sde1 /srv/sde1 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0"
+      - "/dev/sdb1 /srv/sdb1 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0"
+      - "/dev/sdc1 /srv/sdc1 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0"
+      - "/dev/sdd1 /srv/sdd1 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0"
+      - "/dev/sde1 /srv/sde1 xfs user,noatime,nodiratime,nobarrier,logbufs=8 0 0"

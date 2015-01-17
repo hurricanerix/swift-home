@@ -15,4 +15,5 @@
 base:
   '*':
     - common
+    - vagrant
     - swift
